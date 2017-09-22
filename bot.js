@@ -16,7 +16,7 @@ bot.on("message", function(msg) {
 
     if(command === '!timer') {
 
-      bot.reply(msg, '\n**Usage**\n!timer <minutes>:<seconds>\n!timer <minutes>m <seconds>s\n!timer <minutes>m\n!timer <seconds>s');
+      msg.channel.send('\n**Usage**\n!timer <minutes>:<seconds>\n!timer <minutes>m <seconds>s\n!timer <minutes>m\n!timer <seconds>s');
 
     } else {
 
@@ -59,13 +59,13 @@ bot.on("message", function(msg) {
 
           // Unknown Time
         } else {
-          bot.reply(msg, '\n' + params + ' is not a valid time.\nType !timer for formatting.');
+          msg.channel.send('\n' + params + ' is not a valid time.\nType !timer for formatting.');
           log(msg, 'Invalid time format. ' + params);
         }
       } else {
           // Github Repo
         if(msg.content === "!timergit" || msg.content === "!timergithub") {
-          bot.reply(msg, '\nGithub: ' + GIT_REPO);
+          msg.channel.send('\nGithub: ' + GIT_REPO);
           log(msg, 'Requested link to github repo.');
 
           // list Commands
@@ -75,18 +75,17 @@ bot.on("message", function(msg) {
                 '  • !timerhelp | Shows this list.\n' +
                 '  • !timergit | Links to the github repository.\n' +
                 '  • !timergithub | Links to the github repository.';
-          bot.reply(msg, commands);
+          msg.channel.send(commands);
           log(msg, 'Commands List was requested');
         } else {
 
           // Default Unknown
-          bot.reply(msg, '\nCommand Unknown\nType !bf4help for a list of commands.');
+          msg.channel.send('\nCommand Unknown\nType !bf4help for a list of commands.');
           log(msg, 'Unknown Command. ' + msg.content);
         }
       }
 
     }
-
 
   }
 });
@@ -127,11 +126,32 @@ function fromMilli(milli) {
 // Sets the timer
 function timer(msg, duration) {
 
-  bot.reply(msg, 'Timer has been set for ' + fromMilli(duration));
+  bot.reply(msg,'Timer has been set for ' + fromMilli(duration));
   log(msg, 'Timer has been set for ' + fromMilli(duration));
+
+	var remain_sec = duration;
+
+	var ID = setInterval(function() {
+		remain_sec -= 1000;
+
+		if (remain_sec > 60000) {
+			if (remain_sec % 60000 == 0) {
+				msg.channel.send('Timer remain : '+fromMilli(remain_sec));
+			}
+		}
+		if ((remain_sec > 10000) && (remain_sec <= 60000)) {
+			if (remain_sec % 10000 == 0) {
+				msg.channel.send('Timer remain : '+fromMilli(remain_sec));
+			}
+		}
+		if (remain_sec <= 10000) {
+			msg.channel.send('Timer remain : '+fromMilli(remain_sec));
+		}
+	}, 1000);
 
   setTimeout(function() {
 
+	clearInterval(ID);
     bot.reply(msg, 'Timer has finished!');
 
   }, duration);
